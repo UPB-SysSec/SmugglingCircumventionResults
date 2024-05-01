@@ -14,16 +14,18 @@ TIMEOUT = 10.0
 #Control Server Answer
 ANSWER = b'AAAAA'
 
-STARTPORT = 10000
-PORTS = 1000
+#Configure ports
+STARTPORT = 80
+PORTS = 1
 RETRIES = 10
 RES_CENSOR_TIMER = 121.0
 
-#Hetzner VPS
+#Add IP of control server here
 DST_HOST = "control server ip"
 
 DATA_HEADERS = ["tv_id", "smuggle_url", "success", "rst", "blockpage","timeout_afterhs","timeout_beforehs", "other", "timestamp", "request"]
 
+#Add a clean url for the countrycode
 CLEAN_URLS = {
     "cn": "www.gov.cn/",
     "ir": "irangov.ir/",
@@ -62,14 +64,18 @@ def _trialworker(row):
     timeout_afterhs_count = 0
     blockpage_count = 0
     other_count = 0
+    ports = []
 
-    #ports = []
-    #for i in range(RETRIES):
-    #    port = sock_q.get()
-    #    ports.append(port)
 
     for i in range(RETRIES):
-        port = 80
+        if PORTS > 1:    
+            port = sock_q.get()
+            ports.append(port)
+        else:
+            ports.append(STARTPORT)
+
+
+    for port in ports:
         connection_is_made = False
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             s.settimeout(args.timeout)
@@ -96,11 +102,11 @@ def _trialworker(row):
                 other_count += 1
                 logger.info("{} {} {} {} {}".format(row.vector_id, row.url, port,type(exc), exc))
                 
-
-    #sleep(RES_CENSOR_TIMER)
-    #for port in ports:
-    #    sock_q.put(port)
-
+    if PORTS > 1:
+        sleep(RES_CENSOR_TIMER)
+        for port in ports:
+            sock_q.put(port)
+    return
     return success_count, rst_count, blockpage_count, timeout_afterhs_count, timeout_beforehs_count, other_count, req.encode()
     
 
