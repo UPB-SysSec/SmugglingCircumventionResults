@@ -5,6 +5,8 @@ CLEAN_URL = "irangov.ir"
 _CENSORED_URL = "ww12.senario.net"
 
 # This proof of concept requires a proxy to circumvent IP-based censorship.
+# The proxy should forward the bytes to the hard-coded IP address of the censored websites
+# HTTP based proxies might not work due to changes to the URL and the modified Host-headers.
 PROXY_HOST = "" #Enter proxy IP
 PROXY_PORT = 0 #Enter proxy port
 
